@@ -1,9 +1,15 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { getTheme } from "@/lib/theme";
+import {
+  HALLOWEEN_PALETTE, createHalloween, updateHalloween, paintHalloween,
+  type Color, type Creature,
+} from "./halloween";
 
 /**
  * ASCII jellyfish rendered on a 2D canvas.
+ * (Oct 25 – Nov 1 it shows Halloween creatures instead — see lib/theme.ts.)
  *
  * How it works, each frame:
  *  1. Move every jellyfish (pulse-driven swimming, drift, gentle pull toward the pointer).
@@ -23,6 +29,8 @@ const BG = "#07090d";
 
 // Bioluminescent palette (HSL hues)
 const HUES = [188, 275, 318, 165, 212];
+const JELLY_PALETTE: Color[] = HUES.map((h) => ({ h, s: 90 }));
+const MAX_COLORS = 8;
 
 type Jelly = {
   x: number; // bell rim center, px
@@ -73,6 +81,10 @@ export default function JellyfishCanvas() {
     if (!ctx) return;
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const theme = getTheme();
+    document.documentElement.dataset.theme = theme;
+    const palette = theme === "halloween" ? HALLOWEEN_PALETTE : JELLY_PALETTE;
+    let creatures: Creature[] = [];
 
     let w = 0, h = 0, cols = 0, rows = 0;
     let bright = new Float32Array(0);
@@ -82,7 +94,7 @@ export default function JellyfishCanvas() {
     const pointer = { x: -9999, y: -9999, active: false };
 
     // Reusable per-frame buckets: [hueIdx][level] -> flat list of col,row pairs
-    const buckets: number[][] = Array.from({ length: HUES.length * LEVELS }, () => []);
+    const buckets: number[][] = Array.from({ length: MAX_COLORS * LEVELS }, () => []);
 
     function resize() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -101,7 +113,8 @@ export default function JellyfishCanvas() {
       bright = new Float32Array(cols * rows);
       hueOf = new Uint8Array(cols * rows);
 
-      const count = Math.round(Math.min(7, Math.max(3, (w * h) / 200000)));
+      creatures = theme === "halloween" ? createHalloween(w, h) : [];
+      const count = theme === "halloween" ? 0 : Math.round(Math.min(7, Math.max(3, (w * h) / 200000)));
       jellies = Array.from({ length: count }, (_, i) =>
         makeJelly(w, h, ((i + 0.5) / count) * h * 1.1 + rand(-40, 40))
       );
@@ -191,7 +204,10 @@ export default function JellyfishCanvas() {
       }
     }
 
+    const painter = { cw: CELL_W, ch: CELL_H, plot: (px: number, py: number, v: number, c: number) => plot(px, py, v, c) };
+
     function update(dt: number, t: number) {
+      if (theme === "halloween") updateHalloween(creatures, dt, t, w, h, pointer);
       for (const j of jellies) {
         j.phase += dt * j.pulseRate;
         // Thrust happens while the bell contracts.
@@ -228,6 +244,7 @@ export default function JellyfishCanvas() {
     function draw(t: number) {
       bright.fill(0);
       for (const j of jellies) paintJelly(j, t);
+      if (theme === "halloween") paintHalloween(creatures, t, painter);
 
       for (const b of buckets) b.length = 0;
       for (let i = 0; i < bright.length; i++) {
@@ -249,17 +266,17 @@ export default function JellyfishCanvas() {
       }
 
       // Jellyfish, batched by color to keep draw calls low
-      for (let hIdx = 0; hIdx < HUES.length; hIdx++) {
-        const hue = HUES[hIdx];
+      for (let hIdx = 0; hIdx < palette.length; hIdx++) {
+        const { h: hue, s: sat } = palette[hIdx];
         for (let lvl = 0; lvl < LEVELS; lvl++) {
           const cells = buckets[hIdx * LEVELS + lvl];
           if (!cells.length) continue;
           const v = (lvl + 0.5) / LEVELS;
           const ch = RAMP[Math.min(RAMP.length - 1, Math.round(v * (RAMP.length - 1)))];
           const light = 45 + 45 * v;
-          ctx!.fillStyle = `hsla(${hue}, 90%, ${light}%, ${0.45 + 0.55 * v})`;
+          ctx!.fillStyle = `hsla(${hue}, ${sat}%, ${light}%, ${0.45 + 0.55 * v})`;
           if (lvl >= LEVELS - 3) {
-            ctx!.shadowColor = `hsla(${hue}, 100%, 65%, 0.9)`;
+            ctx!.shadowColor = `hsla(${hue}, ${Math.min(100, sat + 10)}%, 65%, 0.9)`;
             ctx!.shadowBlur = 10;
           } else {
             ctx!.shadowBlur = 0;

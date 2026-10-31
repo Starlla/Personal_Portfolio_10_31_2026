@@ -244,3 +244,11 @@ footer { text-align: center; padding: 32px; font-family: var(--mono); font-size:
   .diver-art { animation: none; transition: none; }
   .diver-swimmer { transition: none; }
 }
+
+/* --- Halloween theme (set on <html data-theme> by the canvas) --- */
+html[data-theme="halloween"] {
+  --accent: #ff9a3c;
+  --accent-2: #c79bff;
+  --border: rgba(255, 154, 60, 0.18);
+}
+html[data-theme="halloween"] .hero h1 { text-shadow: 0 0 40px rgba(255, 154, 60, 0.3), 0 0 14px var(--bg); }
