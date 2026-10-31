@@ -1,4 +1,5 @@
 import JellyfishCanvas from "@/components/JellyfishCanvas";
+import Diver from "@/components/Diver";
 import { site } from "@/lib/site";
 
 export default function Home() {
@@ -6,6 +7,8 @@ export default function Home() {
     <>
       {/* Decorative background — real, crawlable text sits on top of it */}
       <JellyfishCanvas />
+      {/* Side diver: wide screens only */}
+      <Diver />
 
       <header className="nav">
         <a href="#top" className="logo">clairetong<span>_</span></a>
