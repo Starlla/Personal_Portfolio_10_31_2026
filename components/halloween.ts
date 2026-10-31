@@ -79,7 +79,75 @@ export function createHalloween(w: number, h: number): Creature[] {
   for (let i = 0; i < candles; i++) out.push(makeCandle(w, h, rand(h * 0.1, h * 0.95)));
   for (let i = 0; i < pumpkins; i++) out.push(makePumpkin(w, h, rand(h * 0.3, h * 0.95)));
   for (let i = 0; i < bats; i++) out.push(makeBat(w, h, true));
+  for (let k = 0; k < 40; k++) separate(out, 1, w); // spread out before the first frame
   return out;
+}
+
+// ---------- personal space ----------
+// Ghosts, pumpkins and candles keep a little distance so they never stack.
+// (Bats are small and fast, so they're allowed to fly past.)
+
+const GAP = 18; // px of breathing room between creatures
+
+function bodyOf(c: Creature): { x: number; y: number; r: number } | null {
+  if (c.kind === "ghost") return { x: c.x, y: c.y + c.r * 0.3, r: c.r * 1.3 };
+  if (c.kind === "pumpkin") return { x: c.x, y: c.y - c.r * 0.1, r: c.r * 1.4 };
+  if (c.kind === "candle") return { x: c.x, y: c.y + c.h * 0.3, r: Math.max(c.h * 0.6, 34) };
+  return null;
+}
+
+function moveBy(c: Creature, dx: number, dy: number) {
+  c.x += dx;
+  c.y += dy;
+}
+
+/** Push overlapping creatures apart. strength 0..1 = how much of the overlap to fix now. */
+function separate(list: Creature[], strength: number, w: number) {
+  for (let i = 0; i < list.length; i++) {
+    const a = bodyOf(list[i]);
+    if (!a) continue;
+    for (let j = i + 1; j < list.length; j++) {
+      const b = bodyOf(list[j]);
+      if (!b) continue;
+      let dx = b.x - a.x, dy = b.y - a.y;
+      let d = Math.hypot(dx, dy);
+      const min = a.r + b.r + GAP;
+      if (d >= min) continue;
+      if (d < 0.001) { dx = Math.random() - 0.5; dy = 0; d = Math.abs(dx) || 1; }
+      // prefer sliding sideways so nobody's upward drift gets cancelled
+      const push = ((min - d) / 2) * strength;
+      const ux = dx / d, uy = (dy / d) * 0.6;
+      moveBy(list[i], -ux * push, -uy * push);
+      moveBy(list[j], ux * push, uy * push);
+      a.x -= ux * push; a.y -= uy * push;
+    }
+  }
+  // keep everyone on screen horizontally
+  for (const c of list) {
+    if (c.kind === "bat") continue;
+    const r = bodyOf(c)!.r * 0.8;
+    c.x = Math.min(w - r, Math.max(r, c.x));
+  }
+}
+
+/** Put a freshly spawned creature in the most open spot along the bottom. */
+function placeInOpenSpace(list: Creature[], idx: number, w: number) {
+  const c = list[idx];
+  const me = bodyOf(c);
+  if (!me) return;
+  let bestX = c.x, bestGap = -Infinity;
+  for (let k = 0; k < 8; k++) {
+    const x = me.r + Math.random() * Math.max(1, w - me.r * 2);
+    let gap = Infinity;
+    for (let j = 0; j < list.length; j++) {
+      if (j === idx) continue;
+      const o = bodyOf(list[j]);
+      if (!o) continue;
+      gap = Math.min(gap, Math.hypot(o.x - x, o.y - me.y) - o.r - me.r);
+    }
+    if (gap > bestGap) { bestGap = gap; bestX = x; }
+  }
+  c.x = bestX;
 }
 
 // ---------- motion ----------
@@ -104,7 +172,10 @@ export function updateHalloween(
       c.vx += Math.sin(t * 0.5 + c.seed) * 10 * dt;
       c.vx *= 1 - 0.9 * dt;
       c.x += c.vx * dt + Math.sin(t * 0.9 + c.seed) * 12 * dt;
-      if (c.y + c.r * 2.6 < 0) list[i] = makeGhost(w, h);
+      if (c.y + c.r * 2.6 < 0) {
+        list[i] = makeGhost(w, h);
+        placeInOpenSpace(list, i, w);
+      }
     } else if (c.kind === "bat") {
       c.phase += dt * 13;
       c.x += c.dir * c.speed * dt;
@@ -118,13 +189,20 @@ export function updateHalloween(
     } else if (c.kind === "candle") {
       c.y -= 7 * dt;
       c.x += Math.sin(t * 0.4 + c.seed) * 4 * dt;
-      if (c.y + c.h < -60) list[i] = makeCandle(w, h);
+      if (c.y + c.h < -60) {
+        list[i] = makeCandle(w, h);
+        placeInOpenSpace(list, i, w);
+      }
     } else {
       c.y -= 9 * dt;
       c.x += Math.sin(t * 0.35 + c.seed) * 6 * dt;
-      if (c.y + c.r * 1.6 < 0) list[i] = makePumpkin(w, h);
+      if (c.y + c.r * 1.6 < 0) {
+        list[i] = makePumpkin(w, h);
+        placeInOpenSpace(list, i, w);
+      }
     }
   }
+  separate(list, Math.min(1, dt * 5), w);
 }
 
 // ---------- drawing ----------
