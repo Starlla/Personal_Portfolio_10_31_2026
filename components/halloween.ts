@@ -1,19 +1,17 @@
 /**
- * Halloween creatures for the ASCII canvas: ghosts, bats, floating candles
- * and jack-o'-lanterns. Each creature paints brightness values into the same
- * character grid the jellyfish use; the canvas turns them into glyphs.
+ * Halloween creatures for the ASCII canvas: ghosts and jack-o'-lanterns.
+ * Each creature paints brightness values into the same character grid the
+ * jellyfish use; the canvas turns them into glyphs.
  */
 
 export type Color = { h: number; s: number };
 
 // Palette indices used below
-const GHOST = 0, PUMPKIN = 1, FLAME = 2, BAT = 3, WAX = 4, STEM = 5;
+const GHOST = 0, PUMPKIN = 1, FLAME = 2, STEM = 3;
 export const HALLOWEEN_PALETTE: Color[] = [
   { h: 195, s: 30 }, // ghost: pale moonlit white
   { h: 26, s: 95 },  // pumpkin orange
-  { h: 45, s: 100 }, // candle flame / carved glow
-  { h: 272, s: 60 }, // bat purple
-  { h: 38, s: 28 },  // candle wax
+  { h: 45, s: 100 }, // carved-face glow
   { h: 105, s: 55 }, // pumpkin stem
 ];
 
@@ -24,10 +22,8 @@ export type Painter = {
 };
 
 type Ghost = { kind: "ghost"; x: number; y: number; r: number; speed: number; seed: number; vx: number };
-type Bat = { kind: "bat"; x: number; y: number; s: number; dir: 1 | -1; speed: number; phase: number; seed: number };
-type Candle = { kind: "candle"; x: number; y: number; w: number; h: number; seed: number; drip: number };
 type Pumpkin = { kind: "pumpkin"; x: number; y: number; r: number; seed: number };
-export type Creature = Ghost | Bat | Candle | Pumpkin;
+export type Creature = Ghost | Pumpkin;
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
 const smoothstep = (e0: number, e1: number, x: number) => {
@@ -52,19 +48,6 @@ function makeGhost(w: number, h: number, y?: number): Ghost {
   const r = rand(52, 82) * scale(w);
   return { kind: "ghost", x: rand(r, w - r), y: y ?? h + r * 2 + rand(0, 120), r, speed: rand(12, 24), seed: rand(0, 1000), vx: 0 };
 }
-function makeBat(w: number, h: number, anywhere = false): Bat {
-  const dir: 1 | -1 = Math.random() < 0.5 ? 1 : -1;
-  const s = rand(20, 34) * scale(w);
-  return {
-    kind: "bat", s, dir, speed: rand(55, 110), phase: rand(0, 6.28), seed: rand(0, 1000),
-    x: anywhere ? rand(0, w) : dir === 1 ? -s * 3 : w + s * 3,
-    y: rand(h * 0.08, h * 0.7),
-  };
-}
-function makeCandle(w: number, h: number, y?: number): Candle {
-  const s = scale(w);
-  return { kind: "candle", x: rand(40, w - 40), y: y ?? h + 120, w: rand(14, 22) * s, h: rand(50, 95) * s, seed: rand(0, 1000), drip: rand(0.15, 0.55) };
-}
 function makePumpkin(w: number, h: number, y?: number): Pumpkin {
   const r = rand(56, 84) * scale(w);
   return { kind: "pumpkin", x: rand(r * 1.5, w - r * 1.5), y: y ?? h + r * 2, r, seed: rand(0, 1000) };
@@ -74,41 +57,29 @@ export function createHalloween(w: number, h: number): Creature[] {
   const area = (w * h) / 900000;
   const n = (base: number) => Math.max(1, Math.round(base * Math.min(1.4, Math.max(0.5, area))));
   const out: Creature[] = [];
-  const ghosts = n(3), candles = n(4), pumpkins = n(2), bats = n(4);
+  const ghosts = n(3), pumpkins = n(2);
   for (let i = 0; i < ghosts; i++) out.push(makeGhost(w, h, ((i + 0.5) / ghosts) * h * 1.1));
-  for (let i = 0; i < candles; i++) out.push(makeCandle(w, h, rand(h * 0.1, h * 0.95)));
   for (let i = 0; i < pumpkins; i++) out.push(makePumpkin(w, h, rand(h * 0.3, h * 0.95)));
-  for (let i = 0; i < bats; i++) out.push(makeBat(w, h, true));
   for (let k = 0; k < 40; k++) separate(out, 1, w); // spread out before the first frame
   return out;
 }
 
 // ---------- personal space ----------
-// Ghosts, pumpkins and candles keep a little distance so they never stack.
-// (Bats are small and fast, so they're allowed to fly past.)
+// Creatures keep a little distance so they never stack.
 
 const GAP = 18; // px of breathing room between creatures
 
-function bodyOf(c: Creature): { x: number; y: number; r: number } | null {
+function bodyOf(c: Creature): { x: number; y: number; r: number } {
   if (c.kind === "ghost") return { x: c.x, y: c.y + c.r * 0.3, r: c.r * 1.3 };
-  if (c.kind === "pumpkin") return { x: c.x, y: c.y - c.r * 0.1, r: c.r * 1.4 };
-  if (c.kind === "candle") return { x: c.x, y: c.y + c.h * 0.3, r: Math.max(c.h * 0.6, 34) };
-  return null;
-}
-
-function moveBy(c: Creature, dx: number, dy: number) {
-  c.x += dx;
-  c.y += dy;
+  return { x: c.x, y: c.y - c.r * 0.1, r: c.r * 1.4 };
 }
 
 /** Push overlapping creatures apart. strength 0..1 = how much of the overlap to fix now. */
 function separate(list: Creature[], strength: number, w: number) {
   for (let i = 0; i < list.length; i++) {
     const a = bodyOf(list[i]);
-    if (!a) continue;
     for (let j = i + 1; j < list.length; j++) {
       const b = bodyOf(list[j]);
-      if (!b) continue;
       let dx = b.x - a.x, dy = b.y - a.y;
       let d = Math.hypot(dx, dy);
       const min = a.r + b.r + GAP;
@@ -117,37 +88,33 @@ function separate(list: Creature[], strength: number, w: number) {
       // prefer sliding sideways so nobody's upward drift gets cancelled
       const push = ((min - d) / 2) * strength;
       const ux = dx / d, uy = (dy / d) * 0.6;
-      moveBy(list[i], -ux * push, -uy * push);
-      moveBy(list[j], ux * push, uy * push);
+      list[i].x -= ux * push; list[i].y -= uy * push;
+      list[j].x += ux * push; list[j].y += uy * push;
       a.x -= ux * push; a.y -= uy * push;
     }
   }
   // keep everyone on screen horizontally
   for (const c of list) {
-    if (c.kind === "bat") continue;
-    const r = bodyOf(c)!.r * 0.8;
+    const r = bodyOf(c).r * 0.8;
     c.x = Math.min(w - r, Math.max(r, c.x));
   }
 }
 
 /** Put a freshly spawned creature in the most open spot along the bottom. */
 function placeInOpenSpace(list: Creature[], idx: number, w: number) {
-  const c = list[idx];
-  const me = bodyOf(c);
-  if (!me) return;
-  let bestX = c.x, bestGap = -Infinity;
+  const me = bodyOf(list[idx]);
+  let bestX = list[idx].x, bestGap = -Infinity;
   for (let k = 0; k < 8; k++) {
     const x = me.r + Math.random() * Math.max(1, w - me.r * 2);
     let gap = Infinity;
     for (let j = 0; j < list.length; j++) {
       if (j === idx) continue;
       const o = bodyOf(list[j]);
-      if (!o) continue;
       gap = Math.min(gap, Math.hypot(o.x - x, o.y - me.y) - o.r - me.r);
     }
     if (gap > bestGap) { bestGap = gap; bestX = x; }
   }
-  c.x = bestX;
+  list[idx].x = bestX;
 }
 
 // ---------- motion ----------
@@ -174,23 +141,6 @@ export function updateHalloween(
       c.x += c.vx * dt + Math.sin(t * 0.9 + c.seed) * 12 * dt;
       if (c.y + c.r * 2.6 < 0) {
         list[i] = makeGhost(w, h);
-        placeInOpenSpace(list, i, w);
-      }
-    } else if (c.kind === "bat") {
-      c.phase += dt * 13;
-      c.x += c.dir * c.speed * dt;
-      c.y += Math.sin(t * 2.2 + c.seed) * 35 * dt;
-      // bats dodge the cursor
-      if (pointer.active) {
-        const dx = c.x - pointer.x, dy = c.y - pointer.y, d = Math.hypot(dx, dy);
-        if (d < 170 && d > 1) c.y += (dy / d) * (1 - d / 170) * 180 * dt;
-      }
-      if (c.x < -c.s * 4 || c.x > w + c.s * 4) list[i] = makeBat(w, h);
-    } else if (c.kind === "candle") {
-      c.y -= 7 * dt;
-      c.x += Math.sin(t * 0.4 + c.seed) * 4 * dt;
-      if (c.y + c.h < -60) {
-        list[i] = makeCandle(w, h);
         placeInOpenSpace(list, i, w);
       }
     } else {
@@ -233,70 +183,6 @@ function paintGhost(g: Ghost, t: number, p: Painter) {
   });
 }
 
-function paintBat(b: Bat, p: Painter) {
-  const s = b.s;
-  const flap = Math.sin(b.phase); // -1..1
-  // body + ears
-  forCells(p, b.x - s * 0.3, b.y - s * 0.55, b.x + s * 0.3, b.y + s * 0.45, (px, py) => {
-    const nx = (px - b.x) / (s * 0.24), ny = (py - b.y) / (s * 0.38);
-    if (nx * nx + ny * ny <= 1) p.plot(px, py, 0.9, BAT);
-  });
-  p.plot(b.x - s * 0.15, b.y - s * 0.5, 0.75, BAT);
-  p.plot(b.x + s * 0.15, b.y - s * 0.5, 0.75, BAT);
-  // wings
-  for (const k of [-1, 1]) {
-    const sx = b.x + k * s * 0.2, sy = b.y - s * 0.1;
-    const tx = b.x + k * s * 1.7, ty = b.y - s * 0.25 - flap * s * 0.75;
-    const steps = Math.max(2, Math.ceil(Math.abs(tx - sx) / p.cw));
-    for (let i = 0; i <= steps; i++) {
-      const u = i / steps;
-      const px = sx + (tx - sx) * u;
-      const top = sy + (ty - sy) * u;
-      const scallop = s * 0.22 * Math.abs(Math.sin(u * Math.PI * 3));
-      const bottom = sy + s * 0.5 + (ty + s * 0.12 - (sy + s * 0.5)) * u - scallop;
-      for (let py = top; py <= bottom; py += p.ch * 0.9) {
-        const edge = py - top < p.ch || bottom - py < p.ch ? 0.9 : 0.6;
-        p.plot(px, py, edge, BAT);
-      }
-      p.plot(px, top, 0.95, BAT);
-    }
-  }
-}
-
-function paintCandle(c: Candle, t: number, p: Painter) {
-  const bob = Math.sin(t * 0.8 + c.seed) * 8;
-  const top = c.y + bob;
-  const x0 = c.x - c.w / 2, x1 = c.x + c.w / 2;
-  // wax body
-  forCells(p, x0, top, x1, top + c.h, (px, py) => {
-    const edge = Math.abs(px - c.x) / (c.w / 2);
-    const v = 0.4 + 0.3 * smoothstep(0.5, 1, edge) + (py - top < p.ch * 1.2 ? 0.2 : 0);
-    p.plot(px, py, v, WAX);
-  });
-  // a wax drip down one side
-  const dripX = c.seed % 2 > 1 ? x0 + p.cw * 0.5 : x1 - p.cw * 0.5;
-  for (let py = top; py < top + c.h * c.drip; py += p.ch) p.plot(dripX, py, 0.75, WAX);
-  // wick
-  p.plot(c.x, top - p.ch * 0.6, 0.5, WAX);
-  // flickering flame
-  const fh = 18 * (1 + 0.15 * Math.sin(t * 14 + c.seed) + 0.1 * Math.sin(t * 23 + c.seed * 2));
-  const fw = 7;
-  const fy = top - p.ch * 0.6 - fh * 0.55;
-  const sway = Math.sin(t * 6 + c.seed) * 2;
-  forCells(p, c.x - 50, fy - 50, c.x + 50, fy + 50, (px, py) => {
-    const dx = px - c.x - sway, dy = py - fy;
-    const nx = dx / fw, ny = dy / fh;
-    const r = Math.hypot(nx, ny < 0 ? ny * 0.55 : ny);
-    if (r < 1) {
-      p.plot(px, py, 0.7 + 0.3 * (1 - r), FLAME);
-    } else {
-      // warm halo
-      const d = Math.hypot(dx, dy);
-      if (d < 50) p.plot(px, py, 0.13 * (1 - d / 50) * (0.85 + 0.15 * Math.sin(t * 9 + c.seed)), FLAME);
-    }
-  });
-}
-
 function paintPumpkin(k: Pumpkin, t: number, p: Painter) {
   const r = k.r, rx = r * 1.25;
   const cy = k.y + Math.sin(t * 0.7 + k.seed) * 6;
@@ -324,9 +210,7 @@ function paintPumpkin(k: Pumpkin, t: number, p: Painter) {
 }
 
 export function paintHalloween(list: Creature[], t: number, p: Painter) {
-  // candles & pumpkins first, ghosts and bats drawn over them
-  for (const c of list) if (c.kind === "candle") paintCandle(c, t, p);
+  // pumpkins first, ghosts drawn over them
   for (const c of list) if (c.kind === "pumpkin") paintPumpkin(c, t, p);
   for (const c of list) if (c.kind === "ghost") paintGhost(c, t, p);
-  for (const c of list) if (c.kind === "bat") paintBat(c, p);
 }
