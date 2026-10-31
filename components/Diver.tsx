@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { getTheme } from "@/lib/theme";
 
 /**
  * A little ASCII diver on the right edge (wide screens only).
@@ -32,6 +33,8 @@ export default function Diver() {
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
+    // The diver sits out the Halloween season (hidden via CSS too).
+    if (getTheme() === "halloween") return;
     const bubbles = root.querySelector<HTMLElement>("[data-bubbles]");
     const depthEl = root.querySelector<HTMLElement>("[data-depth]");
     const btn = root.querySelector<HTMLButtonElement>("[data-dive]");

@@ -251,4 +251,5 @@ html[data-theme="halloween"] {
   --accent-2: #c79bff;
   --border: rgba(255, 154, 60, 0.18);
 }
+html[data-theme="halloween"] .diver { display: none; }
 html[data-theme="halloween"] .hero h1 { text-shadow: 0 0 40px rgba(255, 154, 60, 0.3), 0 0 14px var(--bg); }
