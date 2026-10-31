@@ -1,7 +1,7 @@
 // Edit this one file to personalize the whole site (text, links, SEO).
 export const site = {
-  // Change to your real domain once you have one — used for SEO tags and the sitemap.
-  url: "https://your-domain.com",
+  // Your live domain — used for SEO tags, canonical URL, and the sitemap.
+  url: "https://www.chuyutong.com",
   name: "Claire Tong",
   role: "Full Stack Developer",
   location: "San Francisco, CA",
