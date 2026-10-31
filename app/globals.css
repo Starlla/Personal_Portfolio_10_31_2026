@@ -147,3 +147,7 @@ footer { text-align: center; padding: 32px; font-family: var(--mono); font-size:
 .fine { font-size: 13px; margin-top: 14px; }
 @media (max-width: 560px) { .nav nav { gap: 14px; } .nav nav a:nth-child(4) { display: none; } }
 @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+
+.card .links { display: flex; flex-wrap: wrap; gap: 14px; margin: 14px 0 0; font-family: var(--mono); font-size: 13px; }
+.card .links a { color: var(--accent); border-bottom: 1px solid transparent; transition: border-color 0.2s; }
+.card .links a:hover { border-color: var(--accent); }

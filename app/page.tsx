@@ -48,6 +48,13 @@ export default function Home() {
                 <h4><a href={p.href} target="_blank" rel="noopener">{p.title}</a></h4>
                 <p>{p.blurb}</p>
                 <ul className="tags">{p.tags.map((t) => <li key={t}>{t}</li>)}</ul>
+                {p.links && (
+                  <p className="links">
+                    {p.links.map((l) => (
+                      <a key={l.href} href={l.href} target="_blank" rel="noopener">{l.label} ↗</a>
+                    ))}
+                  </p>
+                )}
               </article>
             ))}
           </div>
