@@ -158,14 +158,14 @@ footer { text-align: center; padding: 32px; font-family: var(--mono); font-size:
   top: 14vh;
   right: clamp(16px, 3vw, 48px);
   z-index: 2;
-  width: 120px;
+  width: 160px;
   display: none;
   font-family: var(--mono);
   color: var(--diver);
   pointer-events: none;
-  --diver: #ffc66d;
+  --diver: #9be07a;
 }
-@media (min-width: 1280px) and (min-height: 620px) {
+@media (min-width: 1360px) and (min-height: 640px) {
   .diver { display: block; }
 }
 .diver-swimmer {
@@ -185,17 +185,18 @@ footer { text-align: center; padding: 32px; font-family: var(--mono); font-size:
   z-index: -1;
   background: radial-gradient(closest-side, rgba(7, 9, 13, 0.92), rgba(7, 9, 13, 0.6) 60%, transparent);
 }
+.diver-figure { position: relative; font-size: 10px; }
 .diver-art {
   margin: 0;
-  font-size: 12px;
+  font-size: 1em;
   line-height: 1.15;
   white-space: pre;
-  text-shadow: 0 0 8px rgba(255, 198, 109, 0.6);
+  text-shadow: 0 0 6px currentColor;
   animation: diver-bob 3.2s ease-in-out infinite;
   transition: transform 0.5s cubic-bezier(0.3, 0.8, 0.3, 1);
 }
-.diver.is-diving .diver-art { animation: none; transform: rotate(-28deg) translateY(8px); }
-.diver.is-surfacing .diver-art { animation: none; transform: rotate(16deg) translateY(-8px); }
+.diver.is-diving .diver-art { animation: none; transform: rotate(10deg) translateY(12px); }
+.diver.is-surfacing .diver-art { animation: none; transform: rotate(-14deg) translateY(-12px); }
 .diver-gauge {
   margin-top: 10px;
   font-size: 11px;
@@ -214,12 +215,23 @@ footer { text-align: center; padding: 32px; font-family: var(--mono); font-size:
   border: 0;
   border-radius: 999px;
   cursor: pointer;
-  box-shadow: 0 0 18px rgba(255, 198, 109, 0.35);
+  box-shadow: 0 0 18px rgba(155, 224, 122, 0.35);
   transition: transform 0.2s, box-shadow 0.2s;
 }
-.diver-btn:hover { transform: translateY(-1px); box-shadow: 0 0 26px rgba(255, 198, 109, 0.65); }
+.diver-btn:hover { transform: translateY(-1px); box-shadow: 0 0 26px rgba(155, 224, 122, 0.6); }
 .diver-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-.diver-bubbles { position: absolute; top: 2px; left: calc(50% + 22px); width: 0; height: 0; }
+/* bubbles rise from the snorkel tip (row 8, column 5 of the art) */
+.diver-bubbles { position: absolute; top: calc(8 * 1.15em); left: 5.5ch; width: 0; height: 0; z-index: 1; }
+/* suit colors, from the reference illustration */
+.dv-b { color: #5b8cff; }
+.dv-g { color: #9be07a; }
+.dv-t { color: #2f8f55; }
+.dv-d { color: #3fb36a; }
+.dv-h { color: #b5ecc0; }
+.dv-v { color: #a8e8ff; }
+.dv-s { color: #ffa64d; }
+.dv-p { color: #ff8ccf; }
+.dv-k { color: #ffcf9f; }
 .bubble {
   position: absolute;
   left: 0;
