@@ -80,10 +80,10 @@ export const site = {
       kind: "Frontend",
       year: "2026",
       blurb:
-        "A single-page React portfolio that presents projects as engineering decisions and embeds my AI digital twin so visitors can chat with it.",
+        "My previous React portfolio, with a filterable project grid and case studies, a \"Now\" section, small UI experiments, a watercolor gallery, and an embedded AI digital twin you can chat with.",
       tags: ["React", "Vite", "Vercel", "Hugging Face"],
-      href: "https://claire-personal-website-may-2026.vercel.app/",
-      links: [{ label: "Live site", href: "https://claire-personal-website-may-2026.vercel.app/" }],
+      href: "https://personal-portfolio-10-01-2026.vercel.app/",
+      links: [{ label: "Live site", href: "https://personal-portfolio-10-01-2026.vercel.app/" }],
     },
     {
       title: "Unity Mini Games",
