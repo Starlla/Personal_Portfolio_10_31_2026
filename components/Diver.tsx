@@ -13,13 +13,60 @@ import { getTheme } from "@/lib/theme";
  * inside useEffect, so scrolling never re-renders React.
  */
 
-const DIVER_ART = String.raw`   .-^-.
-  ( o o )°
-   '-=-'
-   /[#]\
-  / |=| \
-    | |
-   _/ \_`;
+// Head-down diver: fins up top, round helmet + snorkel bottom-left.
+// DIVER_COLORS is a same-size "paint" mask for DIVER_ART:
+//   b fins · g legs · t belt · d suit · h helmet · v visor · s snorkel · p mouthpiece · k hands
+const DIVER_ART = [
+  String.raw`             _      _   `,
+  String.raw`            /#|    /#|  `,
+  String.raw`           /##/   /##/  `,
+  String.raw`           \%%\  /%%/   `,
+  String.raw`            \%%\/%%/    `,
+  String.raw`             \%%%%%/    `,
+  String.raw`             |=====|    `,
+  String.raw`            /#####/     `,
+  String.raw`     _     /#####/      `,
+  String.raw`    |o|   /#####/\      `,
+  String.raw`    |_|  /#####/##\     `,
+  String.raw`   .-+-./#####/  \#\    `,
+  String.raw`  /  .---.  \ /   \#\   `,
+  String.raw` |  ( === )  |     \#\  `,
+  String.raw`  \  '---'  /##\    (@) `,
+  String.raw`   '-------'  \#\       `,
+  String.raw`               (@)      `,
+];
+const DIVER_COLORS = [
+  String.raw`             b      b   `,
+  String.raw`            bbbb   bbbb `,
+  String.raw`           bbbb   bbbb  `,
+  String.raw`           gggg  gggg   `,
+  String.raw`            gggggggg    `,
+  String.raw`             ggggggg    `,
+  String.raw`             ttttttt    `,
+  String.raw`            ddddddd     `,
+  String.raw`     s     ddddddd      `,
+  String.raw`    sss   dddddddd      `,
+  String.raw`    ppp  ddddddddddd    `,
+  String.raw`   hhphhddddddd  ddd    `,
+  String.raw`  h  vvvvv  h d   ddd   `,
+  String.raw` h  vvvvvvv  h     ddd  `,
+  String.raw`  h  vvvvv  hddd    kkk `,
+  String.raw`   hhhhhhhhh  ddd       `,
+  String.raw`               kkk      `,
+];
+
+/** Split each art row into runs of the same color for <span>s. */
+const DIVER_ROWS = DIVER_ART.map((row, r) => {
+  const mask = DIVER_COLORS[r];
+  const runs: { text: string; color: string }[] = [];
+  for (let i = 0; i < row.length; i++) {
+    const color = mask[i] === " " ? "" : mask[i];
+    const last = runs[runs.length - 1];
+    if (last && last.color === color) last.text += row[i];
+    else runs.push({ text: row[i], color });
+  }
+  return runs;
+});
 
 const BUBBLE_CHARS = ["o", "°", "∘", "O", "·", "o"];
 const MAX_DEPTH_M = 200;
@@ -123,8 +170,19 @@ export default function Diver() {
   return (
     <aside ref={rootRef} className="diver" aria-label="Dive navigation">
       <div className="diver-swimmer">
-        <div className="diver-bubbles" data-bubbles aria-hidden="true" />
-        <pre className="diver-art" aria-hidden="true">{DIVER_ART}</pre>
+        <div className="diver-figure">
+          <div className="diver-bubbles" data-bubbles aria-hidden="true" />
+          <pre className="diver-art" aria-hidden="true">
+            {DIVER_ROWS.map((runs, r) => (
+              <span key={r} className="diver-row">
+                {runs.map((run, i) =>
+                  run.color ? <span key={i} className={`dv-${run.color}`}>{run.text}</span> : run.text
+                )}
+                {"\n"}
+              </span>
+            ))}
+          </pre>
+        </div>
         <p className="diver-gauge" aria-hidden="true">
           depth <b data-depth>000</b> m
         </p>
