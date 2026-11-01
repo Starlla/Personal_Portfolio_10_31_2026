@@ -158,14 +158,14 @@ footer { text-align: center; padding: 32px; font-family: var(--mono); font-size:
   top: 14vh;
   right: clamp(16px, 3vw, 48px);
   z-index: 2;
-  width: 160px;
+  width: 120px;
   display: none;
   font-family: var(--mono);
   color: var(--diver);
   pointer-events: none;
   --diver: #9be07a;
 }
-@media (min-width: 1360px) and (min-height: 640px) {
+@media (min-width: 1280px) and (min-height: 620px) {
   .diver { display: block; }
 }
 .diver-swimmer {
@@ -185,7 +185,7 @@ footer { text-align: center; padding: 32px; font-family: var(--mono); font-size:
   z-index: -1;
   background: radial-gradient(closest-side, rgba(7, 9, 13, 0.92), rgba(7, 9, 13, 0.6) 60%, transparent);
 }
-.diver-figure { position: relative; font-size: 10px; }
+.diver-figure { position: relative; font-size: 7px; }
 .diver-art {
   margin: 0;
   font-size: 1em;
