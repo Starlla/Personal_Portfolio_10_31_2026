@@ -81,7 +81,18 @@ main { max-width: 960px; margin: 0 auto; padding: 0 clamp(20px, 5vw, 48px); }
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
 }
 .btn:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(127, 227, 255, 0.2); transform: translateY(-1px); }
-.btn.primary { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.btn.primary {
+  color: #11131c;
+  font-weight: 600;
+  background: var(--button-gradient);
+  border-color: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  box-shadow: 0 0 22px rgba(190, 180, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.btn.primary:hover {
+  border-color: #fff;
+  box-shadow: 0 0 30px rgba(190, 180, 255, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
 
 .panel {
   margin: 0 0 96px;
@@ -259,10 +270,19 @@ footer { text-align: center; padding: 32px; font-family: var(--mono); font-size:
 
 /* --- Hero title + rotating subtitle (lavender → periwinkle, like Kurage) --- */
 :root {
-  --title-gradient: linear-gradient(100deg, #f1edff 0%, #cbbcff 45%, #a7c3ff 100%);
+  /* mostly white, color builds toward the right edge of the name */
+  --title-gradient: linear-gradient(100deg, #ffffff 0%, #fbfaff 38%, #e4dcff 58%, #c3b6ff 78%, #a3c2ff 100%);
+  /* pastel button: lavender-white to pale sky */
+  --button-gradient: linear-gradient(135deg, #f3efff 0%, #e4e3ff 48%, #d3ecff 100%);
   --phrase-gradient: linear-gradient(100deg, #cdbdff 0%, #b3b7ff 50%, #9fcbff 100%);
 }
 .hero h1 {
+  /* size the gradient to the text, not the full column */
+  width: fit-content;
+  align-self: flex-start;
+  /* room for descenders (the "g") inside the gradient's paint area */
+  padding: 0 0.04em 0.12em 0;
+  margin-bottom: -0.12em;
   background: var(--title-gradient);
   -webkit-background-clip: text;
   background-clip: text;
