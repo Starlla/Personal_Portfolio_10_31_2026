@@ -174,7 +174,7 @@ footer { text-align: center; padding: 32px; font-family: var(--mono); font-size:
   font-family: var(--mono);
   color: var(--diver);
   pointer-events: none;
-  --diver: #9be07a;
+  --diver: #c9bcff;
 }
 @media (min-width: 1280px) and (min-height: 620px) {
   .diver { display: block; }
@@ -221,15 +221,20 @@ footer { text-align: center; padding: 32px; font-family: var(--mono); font-size:
   padding: 6px 14px;
   font: inherit;
   font-size: 12px;
-  color: var(--bg);
-  background: var(--diver);
-  border: 0;
-  border-radius: 999px;
+  font-weight: 600;
+  color: #11131c;
+  background: var(--button-gradient);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
   cursor: pointer;
-  box-shadow: 0 0 18px rgba(155, 224, 122, 0.35);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 0 18px rgba(190, 180, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
-.diver-btn:hover { transform: translateY(-1px); box-shadow: 0 0 26px rgba(155, 224, 122, 0.6); }
+.diver-btn:hover {
+  transform: translateY(-1px);
+  border-color: #fff;
+  box-shadow: 0 0 26px rgba(190, 180, 255, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
 .diver-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 /* bubbles rise from the snorkel tip (row 8, column 5 of the art) */
 .diver-bubbles { position: absolute; top: calc(8 * 1.15em); left: 5.5ch; width: 0; height: 0; z-index: 1; }
