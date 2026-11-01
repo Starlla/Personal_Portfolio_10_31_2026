@@ -6,6 +6,17 @@ export const site = {
   role: "Full Stack Developer",
   location: "San Francisco, CA",
   motto: "Dream. Code. Build.",
+  // Hero subtitle: "I build" + a phrase that rotates with a blur-in animation
+  subtitle: {
+    prefix: "I build",
+    phrases: [
+      "calm, fast dashboards",
+      "full-stack web apps",
+      "iOS apps people enjoy",
+      "games you can play in a browser",
+      "things people actually enjoy using",
+    ],
+  },
   tagline:
     "A full stack developer who turns live data, APIs and half-formed ideas into products people actually enjoy using.",
   description:

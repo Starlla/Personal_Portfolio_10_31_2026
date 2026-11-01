@@ -1,5 +1,6 @@
 import JellyfishCanvas from "@/components/JellyfishCanvas";
 import Diver from "@/components/Diver";
+import RotatingSubtitle from "@/components/RotatingSubtitle";
 import { site } from "@/lib/site";
 
 export default function Home() {
@@ -25,7 +26,7 @@ export default function Home() {
         <section className="hero">
           <p className="eyebrow">{site.role} · {site.location}</p>
           <h1>{site.name}</h1>
-          <h2>{site.motto}</h2>
+          <RotatingSubtitle prefix={site.subtitle.prefix} phrases={site.subtitle.phrases} />
           <p className="tagline">{site.tagline}</p>
           <div className="cta">
             <a className="btn primary" href="#work">See my work</a>

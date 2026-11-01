@@ -66,7 +66,7 @@ main { max-width: 960px; margin: 0 auto; padding: 0 clamp(20px, 5vw, 48px); }
 .hero h2 { font-size: clamp(22px, 4vw, 40px); color: var(--muted); font-weight: 500; }
 .tagline { max-width: 520px; margin-top: 20px; color: var(--muted); font-size: 18px; }
 /* Keep hero text readable when a jellyfish drifts behind it */
-.hero > :not(.cta) { text-shadow: 0 0 18px var(--bg), 0 0 6px var(--bg); }
+.hero > :not(.cta):not(h1):not(.subtitle) { text-shadow: 0 0 18px var(--bg), 0 0 6px var(--bg); }
 .hero h1 { text-shadow: 0 0 40px rgba(127, 227, 255, 0.25), 0 0 14px var(--bg); }
 
 .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
@@ -255,4 +255,48 @@ footer { text-align: center; padding: 32px; font-family: var(--mono); font-size:
 @media (prefers-reduced-motion: reduce) {
   .diver-art { animation: none; transition: none; }
   .diver-swimmer { transition: none; }
+}
+
+/* --- Hero title + rotating subtitle (lavender → periwinkle, like Kurage) --- */
+:root {
+  --title-gradient: linear-gradient(100deg, #f1edff 0%, #cbbcff 45%, #a7c3ff 100%);
+  --phrase-gradient: linear-gradient(100deg, #cdbdff 0%, #b3b7ff 50%, #9fcbff 100%);
+}
+.hero h1 {
+  background: var(--title-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 0 22px rgba(180, 170, 255, 0.28)) drop-shadow(0 0 10px var(--bg));
+}
+.hero .subtitle {
+  font-size: clamp(22px, 3.6vw, 38px);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  color: #e6e6ee;
+  text-shadow: 0 0 18px var(--bg), 0 0 6px var(--bg);
+  min-height: 1.3em;
+}
+.subtitle-rot { white-space: normal; }
+.rot-word {
+  display: inline-block;
+  background: var(--phrase-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  transition: opacity 0.52s ease, filter 0.52s ease, transform 0.52s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.rot-word.is-hidden { opacity: 0; filter: blur(10px); transform: translateY(0.25em); }
+.rot-word.is-leaving { opacity: 0; filter: blur(8px); transform: translateY(-0.2em); }
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rot-word { transition: none; }
 }
