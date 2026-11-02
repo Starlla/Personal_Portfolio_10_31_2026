@@ -40,6 +40,16 @@ export const site = {
   ],
   projects: [
     {
+      title: "Café on Island",
+      kind: "3D · Interactive",
+      year: "2026",
+      blurb:
+        "A cozy 3D island scene with a little blue café, a pink bakery, and one very large cherry tree. Drag to rotate, scroll or pinch to zoom, and toggle the falling petals and music.",
+      tags: ["3D", "WebGL", "Vercel"],
+      href: "https://cafeonisland.vercel.app/",
+      links: [{ label: "Explore the island", href: "https://cafeonisland.vercel.app/" }],
+    },
+    {
       title: "Loophaus",
       kind: "Frontend",
       year: "2026",
